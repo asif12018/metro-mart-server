@@ -29,7 +29,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-      const productCollection = client.db('ProductsDB').collection('Product');
+      const productCollection = client.db('ProductsDB').collection('product');
       
 
       app.get('/productsCount', async(req,res)=>{
@@ -37,20 +37,80 @@ async function run() {
         res.send({count})
       })
 
-      app.get('/allProducts',async(req,res)=>{
-        // const result = await productCollection.find().toArray();
-        const {page, size} = req.query
-        const result = await productCollection.find()
-        .skip((parseInt(page) - 1) * parseInt(size))
-        .limit(parseInt(size))
-        .toArray();
-        res.send(result);
-      })
-
       app.get('/filterOption', async(req,res)=>{
         const result = await productCollection.find().toArray();
         res.send(result);
       })
+
+      app.get('/allProducts', async (req, res) => {
+        const { page, size, brand, search, priceRange, sort, category } = req.query;
+    
+        const query = {};
+    
+        // // Filter by brand
+        // if (brand) {
+        //     query.brand = brand;
+        // }
+    
+        // // Filter by search term in product name or description
+        // if (search) {
+        //     query.$or = [
+        //         { name: { $regex: search, $options: 'i' } }, // Case-insensitive search
+        //         { description: { $regex: search, $options: 'i' } }
+        //     ];
+        // }
+    
+        // // Filter by category
+        // if (category) {
+        //     query.category = category;
+        // }
+    
+        // // Filter by price range
+        // if (priceRange) {
+        //     if (priceRange === 'Low Price') {
+        //         query.price = { $lt: 500 };
+        //     } else if (priceRange === 'Mid Price') {
+        //         query.price = { $gte: 500, $lte: 1000 };
+        //     } else if (priceRange === 'High Price') {
+        //         query.price = { $gt: 1000 };
+        //     }
+        // }
+    
+        // // Sort by price
+        // let sortOrder = {};
+        // if (sort) {
+        //     if (sort === 'High to Low') {
+        //         sortOrder.price = -1;
+        //     } else if (sort === 'Low to High') {
+        //         sortOrder.price = 1;
+        //     }
+        // }
+    
+        // const result = await productCollection.find(query)
+        //     .sort(sortOrder)
+        //     .skip((parseInt(page) - 1) * parseInt(size))
+        //     .limit(parseInt(size))
+        //     .toArray();
+
+        if (search) query.productName = { $regex: search, $options: "i" };
+        if (category) query.category = category;
+        if (brand) query.brand = brand;
+        if (priceRange) {
+          if (priceRange === "low") query.price = { $lt: 500 };
+          else if (priceRange === "medium") query.price = { $gte: 500, $lt: 1000 };
+          else if (priceRange === "high") query.price = { $gte: 1000 };
+        }
+
+        const result = await productCollection
+        .find(query)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .toArray();
+    
+        res.send(result);
+    });
+    
 
 
 
