@@ -42,74 +42,36 @@ async function run() {
         res.send(result);
       })
 
-      app.get('/allProducts', async (req, res) => {
-        const { page, size, brand, search, priceRange, sort, category } = req.query;
-    
-        const query = {};
-    
-        // // Filter by brand
-        // if (brand) {
-        //     query.brand = brand;
-        // }
-    
-        // // Filter by search term in product name or description
-        // if (search) {
-        //     query.$or = [
-        //         { name: { $regex: search, $options: 'i' } }, // Case-insensitive search
-        //         { description: { $regex: search, $options: 'i' } }
-        //     ];
-        // }
-    
-        // // Filter by category
-        // if (category) {
-        //     query.category = category;
-        // }
-    
-        // // Filter by price range
-        // if (priceRange) {
-        //     if (priceRange === 'Low Price') {
-        //         query.price = { $lt: 500 };
-        //     } else if (priceRange === 'Mid Price') {
-        //         query.price = { $gte: 500, $lte: 1000 };
-        //     } else if (priceRange === 'High Price') {
-        //         query.price = { $gt: 1000 };
-        //     }
-        // }
-    
-        // // Sort by price
-        // let sortOrder = {};
-        // if (sort) {
-        //     if (sort === 'High to Low') {
-        //         sortOrder.price = -1;
-        //     } else if (sort === 'Low to High') {
-        //         sortOrder.price = 1;
-        //     }
-        // }
-    
-        // const result = await productCollection.find(query)
-        //     .sort(sortOrder)
-        //     .skip((parseInt(page) - 1) * parseInt(size))
-        //     .limit(parseInt(size))
-        //     .toArray();
 
-        if (search) query.productName = { $regex: search, $options: "i" };
-        if (category) query.category = category;
-        if (brand) query.brand = brand;
-        if (priceRange) {
-          if (priceRange === "low") query.price = { $lt: 500 };
-          else if (priceRange === "medium") query.price = { $gte: 500, $lt: 1000 };
-          else if (priceRange === "high") query.price = { $gte: 1000 };
+      app.get('/allProducts', async (req, res) => {
+        const { page, size, brandName, searchName, priceRange, sortPrice, categoryName } = req.query;
+
+        console.log(req.query);
+        const query = {};
+        if (searchName) query.name = {$regex: searchName, $options:"i"};
+        if (categoryName) query.category = categoryName;
+        if (brandName) query.brand = brandName;
+        
+        if(priceRange) {
+           if (priceRange == "Low") query.price = {$lt: 500};
+           else if (priceRange == 'Mid') query.price = {$gte:500, $lt:1000};
+           else if (priceRange == 'High') query.price = {$gte: 1000};
         }
 
-        const result = await productCollection
-        .find(query)
-      .sort(sortOptions)
-      .skip(skip)
-      .limit(parseInt(limit))
-      .toArray();
+        const sortOptions = {};
+        if (sortPrice == 'LowToHigh') sortOptions.price = 1;
+        else if( sortOptions == 'HighToLow') sortOptions.price = -1;
+
+        const skip = (page - 1) * size;
+
+        const productsCount = await productCollection.countDocuments(query);
+        const totalPages = Math.ceil(productsCount / parseInt(size))
+
+        const result = await productCollection.find(query).sort(sortOptions).skip(skip)
+        .limit(parseInt(size)).toArray();
+        res.send(result)
+    }); 
     
-        res.send(result);
-    });
     
 
 
