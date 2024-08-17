@@ -29,7 +29,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-      const productCollection = client.db('ProductsDB').collection('product');
+      const productCollection = client.db('ProductsDB').collection('Product');
       
 
       app.get('/productsCount', async(req,res)=>{
@@ -44,6 +44,11 @@ async function run() {
         .skip((parseInt(page) - 1) * parseInt(size))
         .limit(parseInt(size))
         .toArray();
+        res.send(result);
+      })
+
+      app.get('/filterOption', async(req,res)=>{
+        const result = await productCollection.find().toArray();
         res.send(result);
       })
 
