@@ -60,12 +60,12 @@ async function run() {
 
         const sortOptions = {};
         if (sortPrice == 'LowToHigh') sortOptions.price = 1;
-        else if( sortOptions == 'HighToLow') sortOptions.price = -1;
+        else if( sortPrice == 'HighToLow') sortOptions.price = -1;
 
         const skip = (page - 1) * size;
 
-        const productsCount = await productCollection.countDocuments(query);
-        const totalPages = Math.ceil(productsCount / parseInt(size))
+        // const productsCount = await productCollection.countDocuments(query);
+        // const totalPages = Math.ceil(productsCount / parseInt(size))
 
         const result = await productCollection.find(query).sort(sortOptions).skip(skip)
         .limit(parseInt(size)).toArray();
