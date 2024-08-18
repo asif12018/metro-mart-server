@@ -44,7 +44,7 @@ async function run() {
 
 
       app.get('/allProducts', async (req, res) => {
-        const { page, size, brandName, searchName, priceRange, sortPrice, categoryName } = req.query;
+        const { page, size, brandName, searchName, priceRange, sortPrice, categoryName, sortDate } = req.query;
 
         console.log(req.query);
         const query = {};
@@ -61,6 +61,9 @@ async function run() {
         const sortOptions = {};
         if (sortPrice == 'LowToHigh') sortOptions.price = 1;
         else if( sortPrice == 'HighToLow') sortOptions.price = -1;
+
+        if (sortDate == 'new') sortOptions.created_at = 1;
+        if (sortDate == 'old') sortOptions.created_at = -1;
 
         const skip = (page - 1) * size;
 
