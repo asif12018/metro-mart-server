@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 //express dot env
 require('dotenv').config();
 app.use(cors({
-    origin:["http://localhost:5173"]
+    origin:["http://localhost:5173","https://metro-mart.netlify.app"]
   }))
 
   //middleware to read the data from frontend
